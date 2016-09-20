@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/jaretburkett/MagicKeys#readme",
   "dependencies": {
+    "lovefield": "^2.1.9",
     "node-hid": "^0.5.1",
     "robotjs": "^0.4.4"
   }
