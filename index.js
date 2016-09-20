@@ -2,25 +2,20 @@ var robot = require("robotjs");
 var HID = require('node-hid');
 var fs = require('fs');
 
-// robot.typeString("Hello World");
-
 var attached = false;
 var magickeypad;
 var device;
 
 console.log("Looking for Device");
 
-// Device Scanner
+// Device Scanner, runs every 1 second
 var scanner = setInterval(function() {
     var devices = HID.devices();
     var found = false;
     devices.forEach(function(item) {
-        // console.log(item);
-        // console.log('VID:'+ item.vendorId + '  PID:' + item.productId);
         if(item.vendorId == 5824 && item.productId == 1503){
             // device found
             magickeypad = item;
-
             found = true;
             if(!attached){
                 console.log("Device Found:");
@@ -34,7 +29,7 @@ var scanner = setInterval(function() {
                     console.log(data);
                 });
             }
-        }
+        } // if DigiUSB HID device
     }); // each device
     // echo disconnect of device
     if(attached && !found){
@@ -48,6 +43,7 @@ var scanner = setInterval(function() {
     }
 }, 1000); // - Device Scanner
 
+// reads key presses when they come in
 function read(){
     if(attached){
         // try to get data. Handles errors if unplugged halfway through.
@@ -58,8 +54,8 @@ function read(){
             while (run) {
                 var buff = new Buffer(device.getFeatureReport(0, 254));
                 if (buff.length > 1) {
+                    // get command
                     var char = buff.toString();
-
                     if (char.indexOf('>') > -1) {
                         instr = false;
                         run = false;
@@ -77,11 +73,10 @@ function read(){
             console.log(e);
         } // error
     } // if attached
-}
+} // function read()
 
 function processCMD(str){
-    // remove any whitespace
-    console.log(str);
+    console.log('Key ' + str + ' pressed. Running keys/' + str + '.js');
     // call key script
     var int = parseInt(str);
     if(int > 0 && int < 50){
@@ -89,10 +84,10 @@ function processCMD(str){
             eval(fs.readFileSync('keys/'+str+'.js')+'');
         }
         catch(e){
-            console.log(error);
+            console.log(e);
         }
     }
-}
+} // function processCMD(str)
 
 
 
